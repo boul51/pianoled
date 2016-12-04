@@ -1,16 +1,16 @@
 
 // White keys geometry
-w_width  = 22.65;
-w_depth  = 150;
-w_height = 20;
+w_width  = 22.65; // x axis
+w_height = 20;    // y axis
+w_depth  = 150;   // z axis
 w_gap    = 1; // Distance between two white keys
 
 // Black keys geometry
 // *_high is at the shape of the top of the black key
 // *_low is at the shape of the bottom of the black key
 b_width_low   = 15;
-b_depth_low   = 90;
 b_height_low  = 24;
+b_depth_low   = 90;
 b_width_high  = 10;
 b_depth_high  = 50;
 b_height_high = 11+(w_height-b_height_low);
@@ -20,16 +20,17 @@ b_width       = b_width_low;
 // Pianoled stuff parameters
 pl_depth  = 20;   // z axis size
 pl_height = 12;   // y size, excludes thickness
-pl_margin = 0.5;    // x axis margin near black keys
-pl_thickness = 1; //
+pl_margin = 0.5;  // x axis margin near black keys
+pl_thickness = 1; // thickness of plastic
 
 // Define first note and number of white keys
-first_note  = 5;   // 0 is C, 1 is D, etc...
-note_counts = 52; // Number of white keys to draw
+first_note  = 0; // 0 is C, 1 is D, etc...
+note_counts = 7; // Number of white keys to draw
 
-draw_keyboard();
+//draw_keyboard(); // Uncomment to draw keyboard keys below the frame
 draw_pianoled();
 
+// Draw the whole plastic frame, based on notes_count and first_note
 module draw_pianoled()
 {
     union() {
@@ -63,6 +64,10 @@ function low_height() = pl_height > (b_height - w_height) ? w_height : (b_height
 // determine the height (y axis) where the pianoled top edge is
 function high_height() = pl_height > (b_height - w_height) ? w_height + pl_height : low_height() + pl_height;
 
+// Draw a part of the plastic frame.
+// Each white key is made of two parts :
+//  - the first may be falling (if there is a black key on the left), or straight
+//  - the second may be rising (if there is a black key on the right), or straight
 // direction =  0 : straight
 // direction = -1 : falling
 // direction =  1 : rising
@@ -110,6 +115,7 @@ module draw_part(direction)
     }
 }
 
+// Draw the whole keyboard, based on note_counts and first_note
 module draw_keyboard()
 {
     for (i = [0:note_counts-1]) {
@@ -120,6 +126,7 @@ module draw_keyboard()
     }
 }
 
+// Draw white key i
 module white_key(i) {
     difference() {
         color("White") {
@@ -134,46 +141,55 @@ module white_key(i) {
     }
 }
 
+// return true if white key i a C
 function is_c(i) =
 (
     ((i+first_note)%7 == 0)
 );
 
+// return true if white key i a E
 function is_e(i) =
 (
     ((i+first_note)%7 == 2)
 );
 
+// return true if white key i a F
 function is_f(i) =
 (
     ((i+first_note)%7 == 3)
 );
 
+// return true if white key i a B
 function is_b(i) =
 (
     ((i+first_note)%7 == 6)
 );
 
+// return true if this is white key i the last of the keyboard
 function is_last_white(i) =
 (
     (i + 1 == note_counts)
 );
 
+// return true if this is white key i the first of the keyboard
 function is_first_white(i) =
 (
     (i == 0)
 );
 
+// return true if there is a black key before white key i
 function is_prev_black(i) =
 (
     (!is_first_white(i) && !is_c(i) && !is_f(i))
 );
 
+// return true if there is a black key after white key i
 function is_next_black(i) =
 (
     (!is_last_white(i) && !is_e(i) && !is_b(i))
 );
 
+// draw black key following white key i
 module black_key(i) {
     wl = b_width_low;   // low  width , x axis
     wh = b_width_high;  // high width , x axis
