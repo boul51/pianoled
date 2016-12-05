@@ -16,6 +16,7 @@ b_depth_high  = 50;
 b_height_high = 11+(w_height-b_height_low);
 b_height      = b_height_low + b_height_high;
 b_width       = b_width_low;
+b_jitter      = 2; // Offset on x axis of black keys, starting from middle position
 
 // Pianoled stuff parameters
 pl_depth  = 20;   // z axis size
@@ -42,16 +43,16 @@ module draw_pianoled()
                     
                 translate([i * (w_width + w_gap), 0, 0]) {
                     if (falling)
-                        draw_part(-1);
+                        draw_part(-1, i);
                     else
-                        draw_part(0);
+                        draw_part(0, i);
                 }
         
                 translate([(i+0.5) * (w_width + w_gap), 0, 0]) {
                     if (rising)
-                        draw_part(1);
+                        draw_part(1, i);
                     else
-                        draw_part(0);
+                        draw_part(0, i);
                 }
             }
         }
@@ -71,7 +72,8 @@ function high_height() = pl_height > (b_height - w_height) ? w_height + pl_heigh
 // direction =  0 : straight
 // direction = -1 : falling
 // direction =  1 : rising
-module draw_part(direction)
+// i is the number of the associated white key
+module draw_part(direction, i)
 {
     rising   = (direction ==  1);
     falling  = (direction == -1);
@@ -87,7 +89,7 @@ module draw_part(direction)
         }
     }
     else if (falling) {
-        w1  = b_width / 2 + pl_margin + pl_thickness;
+        w1  = b_width / 2 + pl_margin + pl_thickness + get_b_jitter(i-1);
         w2  = (w_width + w_gap) / 2 - w1;
         translate([0, h_high, 0]) {
             cube([w1, pl_thickness, pl_depth]);
@@ -101,7 +103,7 @@ module draw_part(direction)
     }
     else
     {
-        w2  = b_width / 2 + pl_margin + pl_thickness;
+        w2  = b_width / 2 + pl_margin + pl_thickness - get_b_jitter(i);
         w1  = (w_width + w_gap) / 2 - w2;
         translate([0, h_low, 0]) {
             cube([w1, pl_thickness, pl_depth]);
@@ -189,6 +191,12 @@ function is_next_black(i) =
     (!is_last_white(i) && !is_e(i) && !is_b(i))
 );
 
+// calculate x offset of black key
+function get_b_jitter(i) =
+(
+    is_c(i) || is_f(i)) ? -b_jitter : (is_e(i+1) || is_b(i+1) ? b_jitter : 0
+);
+
 // draw black key following white key i
 module black_key(i) {
     wl = b_width_low;   // low  width , x axis
@@ -226,7 +234,7 @@ module black_key(i) {
         [0, 3, 7, 11, 8, 4]
     ];
     
-    translate([(i+1) * (w_width + w_gap) - b_width_low / 2, 0, 0]) {
+    translate([(i+1) * (w_width + w_gap) - b_width_low / 2 + get_b_jitter(i), 0, 0]) {
         color("DarkSlateGray", 1) {
             polyhedron(bk_points, bk_faces);
         }
