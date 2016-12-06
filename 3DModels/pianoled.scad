@@ -33,8 +33,17 @@ fp_depth    = 10;
 first_note  = 0; // 0 is C, 1 is D, etc...
 notes_count = 7; // Number of white keys to draw
 
-//draw_keyboard(); // Uncomment to draw keyboard keys below the frame
-draw_pianoled();
+2dprojection = false; // Set to true to export a 2D dxf
+
+if (!2dprojection) {
+    //draw_keyboard(); // Uncomment to draw keyboard keys below the frame
+    draw_pianoled();
+}
+else projection(cut=true) translate([0, 0, -5]) {
+    // 2D projection, useful to export to 2D dxf and check distances
+    draw_keyboard();
+    draw_pianoled();
+}
 
 module draw_pianoled()
 {
@@ -49,7 +58,6 @@ module frame()
 {
     union() {
         for (i = [0:notes_count-1]) {
-            w = w_width + (w_gap / 2) - b_width + b_jitters[i];
             falling = is_prev_black(i);
             rising  = is_next_black(i);
             
@@ -83,9 +91,13 @@ function high_height() = pl_height > (b_height - w_height) ? w_height + pl_heigh
 function black_key_x(i) =
     (i+1) * (w_width + w_gap) - b_width_low / 2 + get_b_jitter(i);
 
+// return the x position of left side of white key i, including gap
+function white_key_x(i) =
+    i * (w_width + w_gap);
+
 // return the x position of left side of white key i, excluding gap
 function white_key_x_nogap(i) =
-    i * (w_width + w_gap) + w_gap;
+    i * (w_width + w_gap) + w_gap / 2;
 
 // Draw a part of the plastic frame.
 // Each white key is made of two parts :
@@ -106,11 +118,18 @@ module draw_part(direction, i)
     h_low  = low_height();
 
     if (straight) {
-        translate([0, h_low, 0]) {
-            if (!is_last_white(i)) {
-                cube([(w_width + w_gap) / 2, pl_thickness, pl_depth]);
+        if (is_first_white(i)) {
+            translate([w_gap/2, h_low, 0]) {
+                cube([w_width / 2, pl_thickness, pl_depth]);
             }
-            else {
+        }
+        else if (is_last_white(i)) {
+            translate([0, h_low, 0]) {
+                cube([w_width / 2, pl_thickness, pl_depth]);
+            }
+        }
+        else {
+            translate([0, h_low, 0]) {
                 cube([(w_width + w_gap) / 2, pl_thickness, pl_depth]);
             }
         }
@@ -143,6 +162,7 @@ module draw_part(direction, i)
     }
 }
 
+// Draw the WS8212 PCBs footprints in the frame
 module footprints()
 {
     union() {
@@ -153,7 +173,8 @@ module footprints()
             // White key followed by black key, print footprint on white key
             if (!falling && rising)
             {
-                dx = (black_key_x(i) + white_key_x_nogap(i) - pl_thickness - pl_margin - fp_width) / 2;
+                w_key_x = white_key_x_nogap(i);
+                dx = (black_key_x(i) + w_key_x - pl_thickness - pl_margin - fp_width) / 2;
                 dy = low_height() + pl_thickness - fp_height;
                 dz = (pl_depth - fp_depth) / 2;
                 translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
@@ -162,7 +183,8 @@ module footprints()
             // White key precedeed by black key, print footprint on white key
             if (falling && !rising)
             {
-                dx = (white_key_x_nogap(i) + w_width + black_key_x(i-1) + b_width_low + pl_thickness + pl_margin - fp_width) / 2;
+                w_key_x = white_key_x(i+1) - w_gap/2;
+                dx = (w_key_x + black_key_x(i-1) + b_width_low + pl_thickness + pl_margin - fp_width) / 2;
                 dy = low_height() + pl_thickness - fp_height;
                 dz = (pl_depth - fp_depth) / 2;
                 translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
@@ -269,10 +291,6 @@ function is_next_black(i) =
 function get_b_jitter(i) =
 (
     b_jitters[i]
-    /*
-    is_c(i) ? c_jitter : 
-    is_c(i) || is_f(i)) ? -b_jitter : (is_e(i+1) || is_b(i+1) ? b_jitter : 0
-    */
 );
 
 // draw black key following white key i
