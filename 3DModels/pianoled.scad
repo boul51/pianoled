@@ -40,7 +40,7 @@ module draw_pianoled()
 {
     difference() {
         frame();
-        footprints(notes_count);
+        footprints();
     }
 }
 
@@ -143,7 +143,7 @@ module draw_part(direction, i)
     }
 }
 
-module footprints(i)
+module footprints()
 {
     union() {
         for (i = [0:notes_count-1]) {
