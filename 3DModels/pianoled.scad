@@ -11,24 +11,25 @@ w_gap    = 1; // Distance between two white keys
 b_width_low   = 15;
 b_height_low  = 24;
 b_depth_low   = 90;
-b_width_high  = 10;
+b_width_high  = 9.5;
 b_depth_high  = 50;
 b_height_high = 11+(w_height-b_height_low);
 b_height      = b_height_low + b_height_high;
 b_width       = b_width_low;
-b_jitter      = 2; // Offset on x axis of black keys, starting from middle position
+b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis of black keys, starting from middle position
+//b_jitters     = [0, 0, 0, 0, 0, 0, 0];
 
 // Pianoled stuff parameters
 pl_depth  = 20;   // z axis size
 pl_height = 12;   // y size, excludes thickness
-pl_margin = 0.5;  // x axis margin near black keys
+pl_margin = 1;    // x axis margin near black keys
 pl_thickness = 1; // thickness of plastic
 
 // Define first note and number of white keys
 first_note  = 0; // 0 is C, 1 is D, etc...
 note_counts = 7; // Number of white keys to draw
 
-//draw_keyboard(); // Uncomment to draw keyboard keys below the frame
+draw_keyboard(); // Uncomment to draw keyboard keys below the frame
 draw_pianoled();
 
 // Draw the whole plastic frame, based on notes_count and first_note
@@ -36,11 +37,12 @@ module draw_pianoled()
 {
     union() {
         for (i = [0:note_counts-1]) {
+            w = w_width + (w_gap / 2) - b_width + b_jitters[i];
             falling = is_prev_black(i);
             rising  = is_next_black(i);
             
             color("purple") {
-                    
+                
                 translate([i * (w_width + w_gap), 0, 0]) {
                     if (falling)
                         draw_part(-1, i);
@@ -85,7 +87,12 @@ module draw_part(direction, i)
 
     if (straight) {
         translate([0, h_low, 0]) {
-            cube([(w_width + w_gap) / 2, pl_thickness, pl_depth]);
+            if (!is_last_white(i)) {
+                cube([(w_width + w_gap) / 2, pl_thickness, pl_depth]);
+            }
+            else {
+                cube([(w_width + w_gap) / 2, pl_thickness, pl_depth]);
+            }
         }
     }
     else if (falling) {
@@ -132,7 +139,7 @@ module draw_keyboard()
 module white_key(i) {
     difference() {
         color("White") {
-        translate([i * (w_width + w_gap), 0, 0]) cube([w_width, w_height, w_depth]);
+        translate([w_gap/2 + i * (w_width + w_gap), 0, 0]) cube([w_width, w_height, w_depth]);
         }
         union() {
             if (is_prev_black(i))
@@ -194,7 +201,11 @@ function is_next_black(i) =
 // calculate x offset of black key
 function get_b_jitter(i) =
 (
+    b_jitters[i]
+    /*
+    is_c(i) ? c_jitter : 
     is_c(i) || is_f(i)) ? -b_jitter : (is_e(i+1) || is_b(i+1) ? b_jitter : 0
+    */
 );
 
 // draw black key following white key i
@@ -206,12 +217,14 @@ module black_key(i) {
     dl = b_depth_low;   // low  depth , z axis
     dh = b_depth_high;  // high depth , z axis
     
+    dy = 0; // Starting height of black keys (debug)
+    
     // Black key shape, starting from 0
     bk_points = [
-        [ 0, 0, 0], // 0
-        [ 0, 0,dl], // 1
-        [wl, 0,dl], // 2
-        [wl, 0, 0], // 3
+        [ 0, dy, 0], // 0
+        [ 0, dy,dl], // 1
+        [wl, dy,dl], // 2
+        [wl, dy, 0], // 3
         [ 0,hl, 0], // 4
         [ 0,hl,dl], // 5
         [wl,hl,dl], // 6
