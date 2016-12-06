@@ -29,7 +29,7 @@ pl_thickness = 1; // thickness of plastic
 first_note  = 0; // 0 is C, 1 is D, etc...
 note_counts = 7; // Number of white keys to draw
 
-draw_keyboard(); // Uncomment to draw keyboard keys below the frame
+//draw_keyboard(); // Uncomment to draw keyboard keys below the frame
 draw_pianoled();
 
 // Draw the whole plastic frame, based on notes_count and first_note
