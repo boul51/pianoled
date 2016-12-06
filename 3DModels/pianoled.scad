@@ -17,26 +17,38 @@ b_height_high = 11+(w_height-b_height_low);
 b_height      = b_height_low + b_height_high;
 b_width       = b_width_low;
 b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis of black keys, starting from middle position
-//b_jitters     = [0, 0, 0, 0, 0, 0, 0];
 
 // Pianoled stuff parameters
-pl_depth  = 10;   // z axis size
+pl_depth  = 12;   // z axis size
 pl_height = 12;   // y size, excludes thickness
 pl_margin = 1;    // x axis margin near black keys
 pl_thickness = 1; // thickness of plastic
 
+// PCB footprint parameters
+fp_width    = 8;
+fp_height   = 0.3;
+fp_depth    = 10;
+
 // Define first note and number of white keys
 first_note  = 0; // 0 is C, 1 is D, etc...
-note_counts = 7; // Number of white keys to draw
+notes_count = 7; // Number of white keys to draw
 
 //draw_keyboard(); // Uncomment to draw keyboard keys below the frame
 draw_pianoled();
 
-// Draw the whole plastic frame, based on notes_count and first_note
 module draw_pianoled()
 {
+    difference() {
+        frame();
+        footprints(notes_count);
+    }
+}
+
+// Draw the whole plastic frame, based on notes_count and first_note
+module frame()
+{
     union() {
-        for (i = [0:note_counts-1]) {
+        for (i = [0:notes_count-1]) {
             w = w_width + (w_gap / 2) - b_width + b_jitters[i];
             falling = is_prev_black(i);
             rising  = is_next_black(i);
@@ -49,7 +61,7 @@ module draw_pianoled()
                     else
                         draw_part(0, i);
                 }
-        
+
                 translate([(i+0.5) * (w_width + w_gap), 0, 0]) {
                     if (rising)
                         draw_part(1, i);
@@ -66,6 +78,14 @@ function low_height() = pl_height > (b_height - w_height) ? w_height : (b_height
 
 // determine the height (y axis) where the pianoled top edge is
 function high_height() = pl_height > (b_height - w_height) ? w_height + pl_height : low_height() + pl_height;
+
+// return the x position of left side of black key i
+function black_key_x(i) =
+    (i+1) * (w_width + w_gap) - b_width_low / 2 + get_b_jitter(i);
+
+// return the x position of left side of white key i, excluding gap
+function white_key_x_nogap(i) =
+    i * (w_width + w_gap) + w_gap;
 
 // Draw a part of the plastic frame.
 // Each white key is made of two parts :
@@ -108,8 +128,7 @@ module draw_part(direction, i)
             cube([w2, pl_thickness, pl_depth]);
         }
     }
-    else
-    {
+    else {
         w2  = b_width / 2 + pl_margin + pl_thickness - get_b_jitter(i);
         w1  = (w_width + w_gap) / 2 - w2;
         translate([0, h_low, 0]) {
@@ -124,10 +143,58 @@ module draw_part(direction, i)
     }
 }
 
-// Draw the whole keyboard, based on note_counts and first_note
+module footprints(i)
+{
+    union() {
+        for (i = [0:notes_count-1]) {
+            falling = is_prev_black(i);
+            rising  = is_next_black(i);
+
+            // White key followed by black key, print footprint on white key
+            if (!falling && rising)
+            {
+                dx = (black_key_x(i) + white_key_x_nogap(i) - pl_thickness - pl_margin - fp_width) / 2;
+                dy = low_height() + pl_thickness - fp_height;
+                dz = (pl_depth - fp_depth) / 2;
+                translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
+            }
+
+            // White key precedeed by black key, print footprint on white key
+            if (falling && !rising)
+            {
+                dx = (white_key_x_nogap(i) + w_width + black_key_x(i-1) + b_width_low + pl_thickness + pl_margin - fp_width) / 2;
+                dy = low_height() + pl_thickness - fp_height;
+                dz = (pl_depth - fp_depth) / 2;
+                translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
+            }
+
+            // White key between two black keys, print footprint on white key
+            if (falling && rising)
+            {
+                // Position to the middle of black keys:
+                dx = (black_key_x(i) + black_key_x(i-1) + b_width_low - fp_width) / 2;
+                dy = low_height() + pl_thickness - fp_height;
+                dz = (pl_depth - fp_depth) / 2;
+                translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
+            }
+
+            // Print footprint on black key
+            if (rising)
+            {
+                // Footprint on black key
+                dx2 = black_key_x(i) + (b_width_low - fp_width)/ 2;
+                dy2 = high_height() + pl_thickness - fp_height;
+                dz2 = (pl_depth - fp_depth) / 2;
+                translate([dx2, dy2, dz2]) cube([fp_width, fp_height, fp_depth]);
+            }
+        }
+    }
+}
+
+// Draw the whole keyboard, based on notes_count and first_note
 module draw_keyboard()
 {
-    for (i = [0:note_counts-1]) {
+    for (i = [0:notes_count-1]) {
         white_key(i);
         
         if (is_next_black(i))
@@ -177,7 +244,7 @@ function is_b(i) =
 // return true if this is white key i the last of the keyboard
 function is_last_white(i) =
 (
-    (i + 1 == note_counts)
+    (i + 1 == notes_count)
 );
 
 // return true if this is white key i the first of the keyboard
