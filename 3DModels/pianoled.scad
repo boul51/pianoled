@@ -19,10 +19,10 @@ b_width       = b_width_low;
 b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis of black keys, starting from middle position
 
 // Pianoled stuff parameters
-pl_depth  = 12;   // z axis size
+pl_depth  = 11;   // z axis size
 pl_height = 12;   // y size, excludes thickness
-pl_margin = 1;    // x axis margin near black keys
-pl_thickness = 1; // thickness of plastic
+pl_margin = 0.5;    // x axis margin near black keys
+pl_thickness = 1.5; // thickness of plastic
 
 // PCB footprint parameters
 fp_width    = 8;
@@ -57,26 +57,26 @@ module draw_pianoled()
 module frame()
 {
     union() {
-        for (i = [0:notes_count-1]) {
-            falling = is_prev_black(i);
-            rising  = is_next_black(i);
-            
-            color("purple") {
-                
+        color("purple") {
+            for (i = [0:notes_count-1]) {
+                falling = is_prev_black(i);
+                rising  = is_next_black(i);
+
                 translate([i * (w_width + w_gap), 0, 0]) {
                     if (falling)
-                        draw_part(-1, i);
+                        draw_part(-1, i, true);
                     else
-                        draw_part(0, i);
+                        draw_part(0, i, true);
                 }
 
                 translate([(i+0.5) * (w_width + w_gap), 0, 0]) {
                     if (rising)
-                        draw_part(1, i);
+                        draw_part(1, i, false);
                     else
-                        draw_part(0, i);
+                        draw_part(0, i, false);
                 }
             }
+            bars();
         }
     }
 }
@@ -99,7 +99,7 @@ function white_key_x(i) =
 function white_key_x_nogap(i) =
     i * (w_width + w_gap) + w_gap / 2;
 
-// Draw a part of the plastic frame.
+// Draw a part of the plastic frame. Called twice per key.
 // Each white key is made of two parts :
 //  - the first may be falling (if there is a black key on the left), or straight
 //  - the second may be rising (if there is a black key on the right), or straight
@@ -107,7 +107,8 @@ function white_key_x_nogap(i) =
 // direction = -1 : falling
 // direction =  1 : rising
 // i is the number of the associated white key
-module draw_part(direction, i)
+// is_first_half is true if we are drawing the first part of the key
+module draw_part(direction, i, is_first_half)
 {
     rising   = (direction ==  1);
     falling  = (direction == -1);
@@ -118,7 +119,7 @@ module draw_part(direction, i)
     h_low  = low_height();
 
     if (straight) {
-        if (is_first_white(i)) {
+        if (is_first_white(i) && is_first_half) {
             translate([w_gap/2, h_low, 0]) {
                 cube([w_width / 2, pl_thickness, pl_depth]);
             }
@@ -162,6 +163,24 @@ module draw_part(direction, i)
     }
 }
 
+// Draw reinforcement bars
+module bars()
+{
+    x0 = is_next_black(0) ? black_key_x(0) : is_next_black(1) ? black_key_x(1) : -1;
+    x1 = is_prev_black(notes_count-1) ? black_key_x(notes_count-2) : is_next_black(notes_count-2) ? black_key_x(notes_count-3) : -1;
+
+    if (x0 != -1 && x1 != -1)
+    {
+        translate([x0 - pl_thickness - pl_margin, high_height(), 0]) {
+            cube([x1-x0 + 2 * (pl_thickness + pl_margin) + b_width, pl_thickness, pl_thickness]);
+        }
+        translate([x0 - pl_thickness - pl_margin, high_height(), pl_depth - pl_thickness]) {
+            cube([x1-x0 + 2 * (pl_thickness + pl_margin) + b_width, pl_thickness, pl_thickness]);
+        }
+    }
+
+}
+
 // Draw the WS8212 PCBs footprints in the frame
 module footprints()
 {
@@ -169,6 +188,15 @@ module footprints()
         for (i = [0:notes_count-1]) {
             falling = is_prev_black(i);
             rising  = is_next_black(i);
+
+            // White key alone
+            if (!falling && !rising)
+            {
+                dx = (white_key_x(i+1) + white_key_x(i) - fp_width) / 2;
+                dy = low_height() + pl_thickness - fp_height;
+                dz = (pl_depth - fp_depth) / 2;
+                translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
+            }
 
             // White key followed by black key, print footprint on white key
             if (!falling && rising)
@@ -290,7 +318,7 @@ function is_next_black(i) =
 // calculate x offset of black key
 function get_b_jitter(i) =
 (
-    b_jitters[i]
+    b_jitters[(i+first_note)%7]
 );
 
 // draw black key following white key i
