@@ -28,7 +28,7 @@ pl_thickness_z = 2;   // horizontal thickness on z axis (ie bars)
 
 // PCB footprint parameters
 fp_width    = 8;
-fp_height   = 0.3;
+fp_height   = 0.5;
 fp_depth    = 10;
 
 // Define first note and number of white keys
