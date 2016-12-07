@@ -19,10 +19,12 @@ b_width       = b_width_low;
 b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis of black keys, starting from middle position
 
 // Pianoled stuff parameters
-pl_depth  = 11;   // z axis size
-pl_height = 12;   // y size, excludes thickness
-pl_margin = 0.5;    // x axis margin near black keys
-pl_thickness = 1.5; // thickness of plastic
+pl_depth  = 11;       // z axis size
+pl_height = 12;       // y size, excludes thickness
+pl_margin = 0.5;      // x axis margin near black keys
+pl_thickness_x = 1.5; // vertical thickness on x axis
+pl_thickness_y = 2;   // horizontal thickness on y axis
+pl_thickness_z = 2;   // horizontal thickness on z axis (ie bars)
 
 // PCB footprint parameters
 fp_width    = 8;
@@ -121,44 +123,44 @@ module draw_part(direction, i, is_first_half)
     if (straight) {
         if (is_first_white(i) && is_first_half) {
             translate([w_gap/2, h_low, 0]) {
-                cube([w_width / 2, pl_thickness, pl_depth]);
+                cube([w_width / 2, pl_thickness_y, pl_depth]);
             }
         }
         else if (is_last_white(i)) {
             translate([0, h_low, 0]) {
-                cube([w_width / 2, pl_thickness, pl_depth]);
+                cube([w_width / 2, pl_thickness_y, pl_depth]);
             }
         }
         else {
             translate([0, h_low, 0]) {
-                cube([(w_width + w_gap) / 2, pl_thickness, pl_depth]);
+                cube([(w_width + w_gap) / 2, pl_thickness_y, pl_depth]);
             }
         }
     }
     else if (falling) {
-        w1  = b_width / 2 + pl_margin + pl_thickness + get_b_jitter(i-1);
+        w1  = b_width / 2 + pl_margin + pl_thickness_x + get_b_jitter(i-1);
         w2  = (w_width + w_gap) / 2 - w1;
         translate([0, h_high, 0]) {
-            cube([w1, pl_thickness, pl_depth]);
+            cube([w1, pl_thickness_y, pl_depth]);
         }
-        translate([w1 - pl_thickness, h_low, 0]) {
-            cube([pl_thickness, pl_height, pl_depth]);
+        translate([w1 - pl_thickness_x, h_low, 0]) {
+            cube([pl_thickness_x, pl_height, pl_depth]);
         }
         translate([w1, h_low, 0]) {
-            cube([w2, pl_thickness, pl_depth]);
+            cube([w2, pl_thickness_y, pl_depth]);
         }
     }
     else {
-        w2  = b_width / 2 + pl_margin + pl_thickness - get_b_jitter(i);
+        w2  = b_width / 2 + pl_margin + pl_thickness_x - get_b_jitter(i);
         w1  = (w_width + w_gap) / 2 - w2;
         translate([0, h_low, 0]) {
-            cube([w1, pl_thickness, pl_depth]);
+            cube([w1, pl_thickness_y, pl_depth]);
         }
         translate([w1, h_low, 0]) {
-            cube([pl_thickness, pl_height, pl_depth]);
+            cube([pl_thickness_x, pl_height, pl_depth]);
         }
         translate([w1, h_high, 0]) {
-            cube([w2, pl_thickness, pl_depth]);
+            cube([w2, pl_thickness_y, pl_depth]);
         }
     }
 }
@@ -171,11 +173,11 @@ module bars()
 
     if (x0 != -1 && x1 != -1)
     {
-        translate([x0 - pl_thickness - pl_margin, high_height(), 0]) {
-            cube([x1-x0 + 2 * (pl_thickness + pl_margin) + b_width, pl_thickness, pl_thickness]);
+        translate([x0 - pl_thickness_x - pl_margin, high_height(), 0]) {
+            cube([x1-x0 + 2 * (pl_thickness_x + pl_margin) + b_width, pl_thickness_y, pl_thickness_z]);
         }
-        translate([x0 - pl_thickness - pl_margin, high_height(), pl_depth - pl_thickness]) {
-            cube([x1-x0 + 2 * (pl_thickness + pl_margin) + b_width, pl_thickness, pl_thickness]);
+        translate([x0 - pl_thickness_x - pl_margin, high_height(), pl_depth - pl_thickness_z]) {
+            cube([x1-x0 + 2 * (pl_thickness_x + pl_margin) + b_width, pl_thickness_y, pl_thickness_z]);
         }
     }
 
@@ -193,7 +195,7 @@ module footprints()
             if (!falling && !rising)
             {
                 dx = (white_key_x(i+1) + white_key_x(i) - fp_width) / 2;
-                dy = low_height() + pl_thickness - fp_height;
+                dy = low_height() + pl_thickness_y - fp_height;
                 dz = (pl_depth - fp_depth) / 2;
                 translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
             }
@@ -202,8 +204,8 @@ module footprints()
             if (!falling && rising)
             {
                 w_key_x = white_key_x_nogap(i);
-                dx = (black_key_x(i) + w_key_x - pl_thickness - pl_margin - fp_width) / 2;
-                dy = low_height() + pl_thickness - fp_height;
+                dx = (black_key_x(i) + w_key_x - pl_thickness_x - pl_margin - fp_width) / 2;
+                dy = low_height() + pl_thickness_y - fp_height;
                 dz = (pl_depth - fp_depth) / 2;
                 translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
             }
@@ -212,8 +214,8 @@ module footprints()
             if (falling && !rising)
             {
                 w_key_x = white_key_x(i+1) - w_gap/2;
-                dx = (w_key_x + black_key_x(i-1) + b_width_low + pl_thickness + pl_margin - fp_width) / 2;
-                dy = low_height() + pl_thickness - fp_height;
+                dx = (w_key_x + black_key_x(i-1) + b_width_low + pl_thickness_x + pl_margin - fp_width) / 2;
+                dy = low_height() + pl_thickness_y - fp_height;
                 dz = (pl_depth - fp_depth) / 2;
                 translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
             }
@@ -223,7 +225,7 @@ module footprints()
             {
                 // Position to the middle of black keys:
                 dx = (black_key_x(i) + black_key_x(i-1) + b_width_low - fp_width) / 2;
-                dy = low_height() + pl_thickness - fp_height;
+                dy = low_height() + pl_thickness_y - fp_height;
                 dz = (pl_depth - fp_depth) / 2;
                 translate([dx, dy, dz]) cube([fp_width, fp_height, fp_depth]);
             }
@@ -233,7 +235,7 @@ module footprints()
             {
                 // Footprint on black key
                 dx2 = black_key_x(i) + (b_width_low - fp_width)/ 2;
-                dy2 = high_height() + pl_thickness - fp_height;
+                dy2 = high_height() + pl_thickness_y - fp_height;
                 dz2 = (pl_depth - fp_depth) / 2;
                 translate([dx2, dy2, dz2]) cube([fp_width, fp_height, fp_depth]);
             }
