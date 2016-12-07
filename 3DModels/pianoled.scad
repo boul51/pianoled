@@ -1,9 +1,10 @@
+include <../version.txt>
 
 // White keys geometry
 w_width  = 22.65; // x axis
 w_height = 20;    // y axis
 w_depth  = 150;   // z axis
-w_gap    = 1; // Distance between two white keys
+w_gap    = 1;     // Distance between two white keys
 
 // Black keys geometry
 // *_high is at the shape of the top of the black key
@@ -31,6 +32,10 @@ fp_width    = 8;
 fp_height   = 0.5;
 fp_depth    = 10;
 
+// Message definitions (text is read from textcontents.txt)
+msg_depth     = 0.5;
+msg_font_size = 2.5;
+
 // Define first note and number of white keys
 first_note  = 0; // 0 is C, 1 is D, etc...
 notes_count = 7; // Number of white keys to draw
@@ -52,6 +57,7 @@ module draw_pianoled()
     difference() {
         frame();
         footprints();
+        pl_version();
     }
 }
 
@@ -122,11 +128,13 @@ module draw_part(direction, i, is_first_half)
 
     if (straight) {
         if (is_first_white(i) && is_first_half) {
+            // Avoid to cover the gap on the left for the first white key
             translate([w_gap/2, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
             }
         }
-        else if (is_last_white(i)) {
+        else if (is_last_white(i) && !is_first_half) {
+            // Avoid to cover the gap on the right for the last white key
             translate([0, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
             }
@@ -238,6 +246,34 @@ module footprints()
                 dy2 = high_height() + pl_thickness_y - fp_height;
                 dz2 = (pl_depth - fp_depth) / 2;
                 translate([dx2, dy2, dz2]) cube([fp_width, fp_height, fp_depth]);
+            }
+        }
+    }
+}
+
+// Draw message from version.txt file under E and F notes. If not present, draw nothing
+// pl_version_string is read from ../version.txt
+module pl_version()
+{
+    // Find position of F & E notes, this is where we'll have enough room to write
+    first_e = (7 + 2 - first_note) % 7;
+    next_f = first_e + 1;
+
+    if (next_f >= notes_count) {
+        picawarning();
+        echo("E and F notes are needed to print version string !");
+    }
+    else {
+        // Center text between beginning of E low part and end of F low part
+        e_low_part = is_first_white(first_e) ? w_gap : black_key_x(first_e - 1) + b_width_low + pl_margin;
+        f_low_part = is_last_white(next_f) ? white_key_x(next_f) + w_width : black_key_x(next_f);
+        dx = (e_low_part + f_low_part) / 2;
+        dz = (pl_depth - msg_font_size) / 2;
+        translate([dx, low_height() + msg_depth, dz]) {
+            rotate([90, 0, 0]) {
+                linear_extrude(height=msg_depth) {
+                    text(pl_version_string , font = "Liberation Sans", size=msg_font_size, halign="center");
+                }
             }
         }
     }
