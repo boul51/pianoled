@@ -20,7 +20,7 @@ b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis
 
 // Pianoled stuff parameters
 pl_depth  = 11;       // z axis size
-pl_height = 12;       // y size, excludes thickness
+pl_height = 11;       // y size, excludes thickness
 pl_margin = 0.5;      // x axis margin near black keys
 pl_thickness_x = 1.5; // vertical thickness on x axis
 pl_thickness_y = 2;   // horizontal thickness on y axis
