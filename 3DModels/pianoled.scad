@@ -21,7 +21,7 @@ b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis
 
 // Pianoled stuff parameters
 pl_depth  = 11;       // z axis size
-pl_height = 11;       // y size, excludes thickness
+pl_height = 11.5;     // y size, excludes thickness
 pl_margin = 0.5;      // x axis margin near black keys
 pl_thickness_x = 1.5; // vertical thickness on x axis
 pl_thickness_y = 2;   // horizontal thickness on y axis
@@ -84,7 +84,7 @@ module frame()
                         draw_part(0, i, false);
                 }
             }
-            bars();
+            //bars(); // Uncomment this to draw reinforcement bars
         }
     }
 }
@@ -131,17 +131,23 @@ module draw_part(direction, i, is_first_half)
             // Avoid to cover the gap on the left for the first white key
             translate([w_gap/2, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
+                // Add the vertical part at the back of the key
+                cube([w_width / 2, pl_height + pl_thickness_y, pl_thickness_z]);
             }
         }
         else if (is_last_white(i) && !is_first_half) {
             // Avoid to cover the gap on the right for the last white key
             translate([0, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
+                // Add the vertical part at the back of the key
+                cube([w_width / 2, pl_height + pl_thickness_y, pl_thickness_z]);
             }
         }
         else {
             translate([0, h_low, 0]) {
                 cube([(w_width + w_gap) / 2, pl_thickness_y, pl_depth]);
+                // Add the vertical part at the back of the key
+                cube([(w_width + w_gap) / 2, pl_height + pl_thickness_y, pl_thickness_z]);
             }
         }
     }
@@ -156,6 +162,8 @@ module draw_part(direction, i, is_first_half)
         }
         translate([w1, h_low, 0]) {
             cube([w2, pl_thickness_y, pl_depth]);
+            // Add the vertical part at the back of the key
+            cube([w2, pl_height + pl_thickness_y, pl_thickness_z]);
         }
     }
     else {
@@ -163,6 +171,8 @@ module draw_part(direction, i, is_first_half)
         w1  = (w_width + w_gap) / 2 - w2;
         translate([0, h_low, 0]) {
             cube([w1, pl_thickness_y, pl_depth]);
+            // Add the vertical part at the back of the key
+            cube([w1, pl_height + pl_thickness_y, pl_thickness_z]);
         }
         translate([w1, h_low, 0]) {
             cube([pl_thickness_x, pl_height, pl_depth]);
@@ -173,7 +183,7 @@ module draw_part(direction, i, is_first_half)
     }
 }
 
-// Draw reinforcement bars
+// Draw reinforcement bars (not used anymore)
 module bars()
 {
     x0 = is_next_black(0) ? black_key_x(0) : is_next_black(1) ? black_key_x(1) : -1;
