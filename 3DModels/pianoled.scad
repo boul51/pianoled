@@ -34,7 +34,7 @@ fp_depth    = 10;
 
 // Message definitions (text is read from textcontents.txt)
 msg_depth     = 0.5;
-msg_font_size = 2.5;
+msg_font_size = 6;
 
 // Define first note and number of white keys
 first_note  = 0; // 0 is C, 1 is D, etc...
