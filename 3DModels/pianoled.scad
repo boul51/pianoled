@@ -24,16 +24,22 @@ pl_depth  = 11;       // z axis size
 pl_height = 11.5;     // y size, excludes thickness
 pl_margin = 0.5;      // x axis margin near black keys
 pl_thickness_x = 1.5; // vertical thickness on x axis
-pl_thickness_y = 2;   // horizontal thickness on y axis
+pl_thickness_y = 4;   // horizontal thickness on y axis
 pl_thickness_z = 2;   // horizontal thickness on z axis (ie bars)
 
 // PCB footprint parameters
-fp_width    = 8;
-fp_height   = 0.5;
+fp_width    = 10;
+fp_height   = 2;
 fp_depth    = 10;
+enable_w_footprints = false; // enable footprints on white keys
+
+// Cable guides parameters
+cable_width = 1; // width of the guide
+cable_height = 2; // height of the guide
+cable_length = 165; // length of the guide
 
 // Message definitions (text is read from textcontents.txt)
-msg_depth     = 0.5;
+msg_depth     = 1;
 msg_font_size = 6;
 
 // Define first note and number of white keys
@@ -57,6 +63,7 @@ module draw_pianoled()
     difference() {
         frame();
         footprints();
+        cable_guides();
         pl_version();
     }
 }
@@ -210,7 +217,7 @@ module footprints()
             rising  = is_next_black(i);
 
             // White key alone
-            if (!falling && !rising)
+            if (!falling && !rising && enable_w_footprints)
             {
                 dx = (white_key_x(i+1) + white_key_x(i) - fp_width) / 2;
                 dy = low_height() + pl_thickness_y - fp_height;
@@ -219,7 +226,7 @@ module footprints()
             }
 
             // White key followed by black key, print footprint on white key
-            if (!falling && rising)
+            if (!falling && rising  && enable_w_footprints)
             {
                 w_key_x = white_key_x_nogap(i);
                 dx = (black_key_x(i) + w_key_x - pl_thickness_x - pl_margin - fp_width) / 2;
@@ -229,7 +236,7 @@ module footprints()
             }
 
             // White key precedeed by black key, print footprint on white key
-            if (falling && !rising)
+            if (falling && !rising  && enable_w_footprints)
             {
                 w_key_x = white_key_x(i+1) - w_gap/2;
                 dx = (w_key_x + black_key_x(i-1) + b_width_low + pl_thickness_x + pl_margin - fp_width) / 2;
@@ -239,7 +246,7 @@ module footprints()
             }
 
             // White key between two black keys, print footprint on white key
-            if (falling && rising)
+            if (falling && rising && enable_w_footprints)
             {
                 // Position to the middle of black keys:
                 dx = (black_key_x(i) + black_key_x(i-1) + b_width_low - fp_width) / 2;
@@ -286,6 +293,26 @@ module pl_version()
                 }
             }
         }
+    }
+}
+
+// Draw guides for cables
+module cable_guides()
+{
+    dx = 0;
+    dy = high_height()+ pl_thickness_y - cable_height ;
+    
+    union(){    
+        dz = 3;
+        translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
+    }
+    union(){
+        dz = 5;
+        translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
+    }
+    union(){
+        dz = 7;
+        translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
     }
 }
 
