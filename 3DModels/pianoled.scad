@@ -36,7 +36,7 @@ enable_w_footprints = false; // enable footprints on white keys
 // Cable guides parameters
 cable_width = 1; // width of the guide
 cable_height = 2; // height of the guide
-cable_length = 165; // length of the guide
+cable_length = 168; // length of the guide
 
 // Message definitions (text is read from textcontents.txt)
 msg_depth     = 1;
@@ -73,6 +73,9 @@ module frame()
 {
     union() {
         color("purple") {
+            translate([w_gap/2, low_height(), 0]) {
+                cube([pl_thickness_x, pl_height+pl_thickness_y, pl_depth]);
+            }
             for (i = [0:notes_count-1]) {
                 falling = is_prev_black(i);
                 rising  = is_next_black(i);
@@ -90,6 +93,9 @@ module frame()
                     else
                         draw_part(0, i, false);
                 }
+            }
+            translate([7*(w_width + w_gap)-w_gap/2-pl_thickness_x, low_height(), 0]) {
+                cube([pl_thickness_x, pl_height+pl_thickness_y, pl_depth]);
             }
             //bars(); // Uncomment this to draw reinforcement bars
         }
