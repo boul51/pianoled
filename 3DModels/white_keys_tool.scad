@@ -31,11 +31,6 @@ hole_centers = [
 
 tool();
 
-/*
-    translate([tool_size_x - fork_size_x, 0, -tool_size_z / 2]) {
-        cube([fork_size_x, tool_size_y, tool_size_z]);
-    }
-*/
 module tool()
 {
     union() {
