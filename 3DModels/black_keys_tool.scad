@@ -1,6 +1,11 @@
 include <parameters.scad>
 include <common_modules.scad>
 
+// Override fp_width and fp_height to include only the LED
+// Comment this to include the complete LED PCB
+fp_width = 5;
+fp_depth = 5;
+
 // disable footprints on white keys
 enable_w_footprints = false;
 thickness_y = pl_thickness_y;
