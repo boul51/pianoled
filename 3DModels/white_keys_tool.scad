@@ -19,7 +19,7 @@ top_size_z = tool_size_z;
 // Offset of hole centers
 hole_off_x = 1.5;
 hole_off_z = 3;
-hole_diameter = 0.5;
+hole_diameter = 1;
 
 hole_centers = [
     [hole_off_x, 0, hole_off_z],
@@ -45,8 +45,8 @@ module tool()
 module fork()
 {
     difference() {
-        translate([0, 0, -tool_size_z / 2]) {
-            cube([tool_size_x, tool_size_y, tool_size_z]);
+        translate([0, 0, -tool_size_z / 2 - bridge_size_z]) {
+            cube([tool_size_x, tool_size_y, tool_size_z + bridge_size_z]);
         }
         translate([tool_size_x - fork_size_x, 0, -pcb_size_z / 2]) {
             cube([fork_size_x, tool_size_y, pcb_size_z]);
