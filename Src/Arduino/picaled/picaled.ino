@@ -92,6 +92,15 @@ void setup()
 // Main loop function
 void loop()
 {
+    static unsigned long elapsed = millis();
+
+    // Refresh colors every 100ms in case
+    // (LEDs often lose their color when touching the wires)
+    if (millis() - elapsed > 100) {
+        updateLedsColors();
+        elapsed = millis();
+    }
+    
 #if PL_DEBUG_LOOP == 1
     // Debug
     if (millis() - g_dbg_elapsed > 1000)
