@@ -52,7 +52,7 @@ module footprints()
             {
                 // Footprint on black key
                 dx2 = black_key_x(i) + (b_width_low - fp_width)/ 2;
-                dy2 = high_height() + pl_thickness_y - fp_height;
+                dy2 = high_height() + pl_thickness_y_top - fp_height;
                 dz2 = (pl_depth - fp_depth) / 2;
                 translate([dx2, dy2, dz2]) cube([fp_width, fp_height, fp_depth]);
             }

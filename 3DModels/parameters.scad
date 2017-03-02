@@ -24,11 +24,12 @@ pl_height = 11.5;     // y size, excludes thickness
 pl_margin = 0.5;      // x axis margin near black keys
 pl_thickness_x = 1.5; // vertical thickness on x axis
 pl_thickness_y = 4;   // horizontal thickness on y axis
+pl_thickness_y_top = 6;   // horizontal thickness on y axis
 pl_thickness_z = 2;   // horizontal thickness on z axis (ie bars)
 
 // PCB footprint parameters
 fp_width    = 10;
-fp_height   = 2;
+fp_height   = 4;
 fp_depth    = 10;
 
 // Cable guides parameters

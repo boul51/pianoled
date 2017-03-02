@@ -90,7 +90,7 @@ module draw_part(direction, i, is_first_half)
             translate([w_gap/2, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
                 // Add the vertical part at the back of the key
-                cube([w_width / 2, pl_height + pl_thickness_y, pl_thickness_z]);
+                cube([w_width / 2, pl_height + pl_thickness_y_top, pl_thickness_z]);
             }
         }
         else if (is_last_white(i) && !is_first_half) {
@@ -98,14 +98,14 @@ module draw_part(direction, i, is_first_half)
             translate([0, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
                 // Add the vertical part at the back of the key
-                cube([w_width / 2, pl_height + pl_thickness_y, pl_thickness_z]);
+                cube([w_width / 2, pl_height + pl_thickness_y_top, pl_thickness_z]);
             }
         }
         else {
             translate([0, h_low, 0]) {
                 cube([(w_width + w_gap) / 2, pl_thickness_y, pl_depth]);
                 // Add the vertical part at the back of the key
-                cube([(w_width + w_gap) / 2, pl_height + pl_thickness_y, pl_thickness_z]);
+                cube([(w_width + w_gap) / 2, pl_height + pl_thickness_y_top, pl_thickness_z]);
             }
         }
     }
@@ -113,7 +113,7 @@ module draw_part(direction, i, is_first_half)
         w1  = b_width / 2 + pl_margin + pl_thickness_x + get_b_jitter(i-1);
         w2  = (w_width + w_gap) / 2 - w1;
         translate([0, h_high, 0]) {
-            cube([w1, pl_thickness_y, pl_depth]);
+            cube([w1, pl_thickness_y_top, pl_depth]);
         }
         translate([w1 - pl_thickness_x, h_low, 0]) {
             cube([pl_thickness_x, pl_height, pl_depth]);
@@ -121,7 +121,7 @@ module draw_part(direction, i, is_first_half)
         translate([w1, h_low, 0]) {
             cube([w2, pl_thickness_y, pl_depth]);
             // Add the vertical part at the back of the key
-            cube([w2, pl_height + pl_thickness_y, pl_thickness_z]);
+            cube([w2, pl_height + pl_thickness_y_top, pl_thickness_z]);
         }
     }
     else {
@@ -130,13 +130,13 @@ module draw_part(direction, i, is_first_half)
         translate([0, h_low, 0]) {
             cube([w1, pl_thickness_y, pl_depth]);
             // Add the vertical part at the back of the key
-            cube([w1, pl_height + pl_thickness_y, pl_thickness_z]);
+            cube([w1, pl_height + pl_thickness_y_top, pl_thickness_z]);
         }
         translate([w1, h_low, 0]) {
             cube([pl_thickness_x, pl_height, pl_depth]);
         }
         translate([w1, h_high, 0]) {
-            cube([w2, pl_thickness_y, pl_depth]);
+            cube([w2, pl_thickness_y_top, pl_depth]);
         }
     }
 }
@@ -191,7 +191,7 @@ module pl_version()
 module cable_guides()
 {
     dx = 0;
-    dy = high_height()+ pl_thickness_y - cable_height ;
+    dy = high_height()+ pl_thickness_y_top - cable_height ;
     
     union(){    
         dz = 3;
