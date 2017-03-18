@@ -48,7 +48,7 @@ module footprints()
             }
 
             // Print footprint on black key
-            if (rising)
+            if (rising && enable_b_footprints)
             {
                 // Footprint on black key
                 dx2 = black_key_x(i) + (b_width_low - fp_width)/ 2;

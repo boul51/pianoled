@@ -2,7 +2,7 @@
 #include <Adafruit_NeoPixel.h>
 
 #define PIN        6    // Neopixel data line pin
-#define LEDS_COUNT 5   // Number of leds to drive
+#define LEDS_COUNT 12   // Number of leds to drive
 
 /*************
  * Functions *

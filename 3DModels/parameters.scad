@@ -19,11 +19,11 @@ b_width       = b_width_low;
 b_jitters     = [-2.175 , 2.175 , 0 , -3.35 , 0 , 3.35 , 0]; // Offset on x axis of black keys, starting from middle position
 
 // Pianoled stuff parameters
-pl_depth  = 11;       // z axis size
+pl_depth  = 16;       // z axis size
 pl_height = 11.5;     // y size, excludes thickness
 pl_margin = 0.5;      // x axis margin near black keys
 pl_thickness_x = 1.5; // vertical thickness on x axis
-pl_thickness_y = 4;   // horizontal thickness on y axis
+pl_thickness_y = 3;   // horizontal thickness on y axis
 pl_thickness_y_top = 6;   // horizontal thickness on y axis
 pl_thickness_z = 2;   // horizontal thickness on z axis (ie bars)
 
@@ -33,10 +33,16 @@ fp_height   = 4;
 fp_depth    = 10;
 
 // Cable guides parameters
-cable_width = 1; // width of the guide
-cable_height = 2; // height of the guide
+cable_width = 12; // width of the guide
+cable_height = 3; // height of the guide
 cable_length = 168; // length of the guide
 
 // Define first note and number of white keys
 first_note  = 0; // 0 is C, 1 is D, etc...
 notes_count = 7; // Number of white keys to draw
+
+// Light guide parameters
+light_guide_height = 7;
+light_guide_din = 5.5;
+light_guide_dout = 8;
+light_guide_fn = 30;

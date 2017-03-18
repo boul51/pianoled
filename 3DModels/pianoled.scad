@@ -2,8 +2,9 @@ include <../version.txt>
 include <parameters.scad>
 include <common_modules.scad>
 
-// disable footprints on white keys
+// disable footprints on white/black keys
 enable_w_footprints = false;
+enable_b_footprints = false;
 
 // Message definitions (text is read from textcontents.txt)
 msg_depth     = 1;
@@ -62,6 +63,29 @@ module frame()
             }
             //bars(); // Uncomment this to draw reinforcement bars
         }
+        color("grey") {
+            translate([7,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+            translate([35.5,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+            translate([64,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+            translate([76,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+            translate([104.75,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+            translate([131.75,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+            translate([159,light_guide_height+low_height()+1,pl_depth/2]){
+                light_guide();
+            }
+        }
     }
 }
 
@@ -88,7 +112,10 @@ module draw_part(direction, i, is_first_half)
         if (is_first_white(i) && is_first_half) {
             // Avoid to cover the gap on the left for the first white key
             translate([w_gap/2, h_low, 0]) {
+                // TODO INSERT GUIDE
+                
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
+                
                 // Add the vertical part at the back of the key
                 cube([w_width / 2, pl_height + pl_thickness_y_top, pl_thickness_z]);
             }
@@ -97,6 +124,7 @@ module draw_part(direction, i, is_first_half)
             // Avoid to cover the gap on the right for the last white key
             translate([0, h_low, 0]) {
                 cube([w_width / 2, pl_thickness_y, pl_depth]);
+                
                 // Add the vertical part at the back of the key
                 cube([w_width / 2, pl_height + pl_thickness_y_top, pl_thickness_z]);
             }
@@ -104,6 +132,7 @@ module draw_part(direction, i, is_first_half)
         else {
             translate([0, h_low, 0]) {
                 cube([(w_width + w_gap) / 2, pl_thickness_y, pl_depth]);
+                
                 // Add the vertical part at the back of the key
                 cube([(w_width + w_gap) / 2, pl_height + pl_thickness_y_top, pl_thickness_z]);
             }
@@ -139,6 +168,19 @@ module draw_part(direction, i, is_first_half)
             cube([w2, pl_thickness_y_top, pl_depth]);
         }
     }
+}
+
+module light_guide()
+{
+  
+    rotate([90,0,0]){
+        difference(){
+            cylinder(light_guide_height, d1=light_guide_dout, 
+                d2=light_guide_dout, center=false, $fn=light_guide_fn);
+            cylinder(light_guide_height, d1=light_guide_din, 
+            d2=light_guide_din, center=false, $fn=light_guide_fn);
+        }
+    }       
 }
 
 // Draw reinforcement bars (not used anymore)
@@ -187,24 +229,18 @@ module pl_version()
     }
 }
 
-// Draw guides for cables
+// Draw guides for ribbon
 module cable_guides()
 {
     dx = 0;
     dy = high_height()+ pl_thickness_y_top - cable_height ;
     
     union(){    
-        dz = 3;
+        dz = 2;
         translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
     }
-    union(){
-        dz = 5;
-        translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
-    }
-    union(){
-        dz = 7;
-        translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
-    }
+    
+    
 }
 
 // Draw the whole keyboard, based on notes_count and first_note
