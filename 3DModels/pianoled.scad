@@ -233,11 +233,12 @@ module pl_version()
 module cable_guides()
 {
     dx = 0;
-    dy = high_height()+ pl_thickness_y_top - cable_height ;
+    dy = high_height()+ pl_thickness_y_top - cable_height_tot ;
     
     union(){    
-        dz = 2;
-        translate([dx, dy, dz]) cube([cable_length, cable_height, cable_width]);
+        translate([dx, dy, 4]) cube([cable_length, cable_height, cable_width-4]);
+        translate([dx, dy+2, 2]) cube([cable_length, cable_height, cable_width]);
+        translate([dx, dy+4, 3]) cube([cable_length, cable_height, cable_width-1]);
     }
     
     
